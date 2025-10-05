@@ -5,34 +5,144 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Find your Aquila bike</title>
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#ffffff;color:#1a1a1a;margin:0;padding:30px;line-height:1.5;text-align:center}
-    img.logo{max-width:400px;width:80%;height:auto;margin-bottom:20px}
-    h1{font-size:24px;margin-bottom:20px}
-    .card{background:#f4f6f8;border-radius:16px;padding:20px;max-width:800px;margin:20px auto;box-shadow:0 0 10px rgba(0,0,0,.1);text-align:left}
-    label{display:block;margin-top:10px;font-size:14px;color:#555}
-    input,button{border-radius:10px;border:1px solid #ccc;background:#fff;color:#000;padding:10px;width:100%}
-    button{margin-top:14px;background:#007bff;color:#fff;border:none;font-weight:700;cursor:pointer}
-    button:hover{background:#0056b3}
-    .result{margin-top:20px;padding:10px;border-radius:10px;background:#fff;border:1px solid #ccc}
-    @media (max-width:600px){img.logo{max-width:240px;width:90%}}
+    :root{
+      --bg:#ffffff;--text:#1a1a1a;--muted:#656d76;--card:#f4f6f8;--line:#e6e8eb;--primary:#007bff;--primary-d:#0056b3
+    }
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);margin:0;line-height:1.5;text-align:center}
+    .wrap{padding:30px}
+    img.logo{max-width:400px;width:80%;height:auto;margin-bottom:16px}
+    h1{font-size:26px;margin:0 0 20px}
+    .card{background:var(--card);border-radius:16px;padding:20px;max-width:880px;margin:20px auto;box-shadow:0 0 10px rgba(0,0,0,.06);text-align:left;border:1px solid var(--line)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{display:block;margin:6px 0 6px;font-size:14px;color:#444}
+    input[type="number"],select{border-radius:10px;border:1px solid #ccc;background:#fff;color:#000;padding:10px;width:100%}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ccc;background:#fff;color:#000;font-weight:700;cursor:pointer}
+    .btn.primary{background:var(--primary);color:#fff;border:none}
+    .btn.primary:hover{background:var(--primary-d)}
+    .btn.ghost{background:#fff}
+    .actions{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
+    .result{margin-top:20px;padding:14px;border-radius:12px;background:#fff;border:1px solid var(--line)}
+    .step{display:none}
+    .step.active{display:block}
+    .qgroup{display:grid;gap:10px;margin-top:10px}
+    .radio{
+      display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);padding:10px;border-radius:10px;cursor:pointer
+    }
+    .radio input{margin:0}
+    .note{font-size:13px;color:var(--muted)}
+    .summary{font-size:14px;color:#333}
+    @media (max-width:640px){
+      img.logo{max-width:240px;width:90%}
+      .row{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
-  <img src="Aquila.png" alt="AQUILA Logo" class="logo" />
-  <h1>Find your Aquila bike</h1>
-  <div class="card">
-    <label>Height (cm)</label>
-    <input id="height" type="number" placeholder="175" />
-    <label>Inseam (cm)</label>
-    <input id="inseam" type="number" placeholder="82" />
-    <button id="btn">Calculate</button>
-    <div class="result" id="res" hidden>
-      <div id="size"></div>
-      <div id="note" style="font-size:13px;color:#555;margin-top:6px"></div>
+  <div class="wrap">
+    <img src="Aquila.png" alt="AQUILA Logo" class="logo" />
+    <h1>Find your Aquila bike</h1>
+
+    <div class="card">
+      <!-- Step 0: Intro / Start -->
+      <section class="step active" id="step-intro">
+        <p class="summary">Answer a few quick questions, then enter your height and inseam to get a precise Aquila frame recommendation.</p>
+        <div class="actions">
+          <button class="btn primary" id="start">Start</button>
+        </div>
+      </section>
+
+      <!-- Step 1: Sex -->
+      <section class="step" id="step-1">
+        <h3>1) What is your sex?</h3>
+        <div class="qgroup" role="radiogroup" aria-label="sex">
+          <label class="radio"><input type="radio" name="sex" value="male"> Male</label>
+          <label class="radio"><input type="radio" name="sex" value="female"> Female</label>
+        </div>
+        <div class="actions">
+          <button class="btn" data-prev>Back</button>
+          <button class="btn primary" data-next>Next</button>
+        </div>
+      </section>
+
+      <!-- Step 2: Riding years -->
+      <section class="step" id="step-2">
+        <h3>2) How long have you been riding?</h3>
+        <div class="qgroup" role="radiogroup" aria-label="experience">
+          <label class="radio"><input type="radio" name="years" value="0-1"> 0–1 year</label>
+          <label class="radio"><input type="radio" name="years" value="2-3"> 2–3 years</label>
+          <label class="radio"><input type="radio" name="years" value=">=4"> 4+ years</label>
+        </div>
+        <div class="actions">
+          <button class="btn" data-prev>Back</button>
+          <button class="btn primary" data-next>Next</button>
+        </div>
+      </section>
+
+      <!-- Step 3: Style -->
+      <section class="step" id="step-3">
+        <h3>3) What is your riding style?</h3>
+        <div class="qgroup" role="radiogroup" aria-label="style">
+          <label class="radio"><input type="radio" name="style" value="race"> Racing / Aggressive</label>
+          <label class="radio"><input type="radio" name="style" value="comfort"> Endurance / Comfort</label>
+        </div>
+        <p class="note">Tip: Racing style will bias the recommendation one size smaller.</p>
+        <div class="actions">
+          <button class="btn" data-prev>Back</button>
+          <button class="btn primary" data-next>Next</button>
+        </div>
+      </section>
+
+      <!-- Step 4: Bike fitting -->
+      <section class="step" id="step-4">
+        <h3>4) Have you done a professional bike fitting?</h3>
+        <div class="qgroup" role="radiogroup" aria-label="fitting">
+          <label class="radio"><input type="radio" name="fit" value="yes"> Yes</label>
+          <label class="radio"><input type="radio" name="fit" value="no"> No</label>
+        </div>
+        <div class="actions">
+          <button class="btn" data-prev>Back</button>
+          <button class="btn primary" data-next>Next</button>
+        </div>
+      </section>
+
+      <!-- Step 5: Measurements -->
+      <section class="step" id="step-5">
+        <h3>Enter your measurements</h3>
+        <div class="row">
+          <div>
+            <label>Height (cm)</label>
+            <input id="height" type="number" placeholder="175" min="120" max="220" step="0.1" />
+          </div>
+          <div>
+            <label>Inseam (cm)</label>
+            <input id="inseam" type="number" placeholder="80" min="50" max="110" step="0.1" />
+          </div>
+        </div>
+        <p class="note">Your sizing will be adjusted by your riding style selection.</p>
+        <div class="actions">
+          <button class="btn" data-prev>Back</button>
+          <button class="btn primary" id="calc">See recommendation</button>
+        </div>
+      </section>
+
+      <!-- Step 6: Result -->
+      <section class="step" id="step-6">
+        <h3>Your Aquila recommendation</h3>
+        <div class="result">
+          <div id="size" style="font-size:20px;font-weight:800"></div>
+          <div id="note" class="note" style="margin-top:6px"></div>
+          <div id="recap" class="summary" style="margin-top:10px"></div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="restart">Start over</button>
+        </div>
+      </section>
     </div>
   </div>
 
   <script>
+    // ====== Your base lookup table (height × inseam → size range) ======
     const TABLE = [
       { minHeight: 0, maxHeight: 156, minInseam: 70, maxInseam: 72, size: '45–48cm' },
       { minHeight: 164, maxHeight: 164, minInseam: 73, maxInseam: 75, size: '48–50cm' },
@@ -44,26 +154,125 @@
       { minHeight: 195, maxHeight: 210, minInseam: 91, maxInseam: 93, size: '60cm +' }
     ];
 
-    const h = (s)=>document.querySelector(s);
+    // ====== Wizard state & helpers ======
+    const $ = (s) => document.querySelector(s);
+    const state = { sex:null, years:null, style:null, fit:null, height:null, inseam:null };
+    let current = 0; // 0..6
+    const steps = ['intro','1','2','3','4','5','6'];
 
-    function findSize(height, inseam){
-      const match = TABLE.find(r => height >= r.minHeight && height <= r.maxHeight && inseam >= r.minInseam && inseam <= r.maxInseam);
-      if(match) return {size: match.size, note:`Height ${height} cm, inseam ${inseam} cm → Recommended frame size: ${match.size}`};
-      let closest=null, diff=Infinity;
-      for(const r of TABLE){
-        const d = Math.abs(height - (r.minHeight + r.maxHeight)/2) + Math.abs(inseam - (r.minInseam + r.maxInseam)/2);
-        if(d < diff){ diff = d; closest = r; }
+    const showStep = (n) => {
+      steps.forEach((id,i)=>{
+        const el = $('#step-' + id);
+        if(el) el.classList.toggle('active', i===n);
+      });
+      current = n;
+    };
+
+    const needAnswer = () => {
+      switch(current){
+        case 1: return !!document.querySelector('input[name="sex"]:checked');
+        case 2: return !!document.querySelector('input[name="years"]:checked');
+        case 3: return !!document.querySelector('input[name="style"]:checked');
+        case 4: return !!document.querySelector('input[name="fit"]:checked');
+        case 5:
+          const h = parseFloat($('#height').value);
+          const ins = parseFloat($('#inseam').value);
+          return !(isNaN(h)||isNaN(ins));
+        default: return true;
       }
-      return closest ? {size: closest.size, note:`No exact match, closest range: (${closest.minHeight}-${closest.maxHeight} cm / ${closest.minInseam}-${closest.maxInseam} cm)`}:null;
+    };
+
+    const readAnswers = () => {
+      if(current===1) state.sex = document.querySelector('input[name="sex"]:checked')?.value || state.sex;
+      if(current===2) state.years = document.querySelector('input[name="years"]:checked')?.value || state.years;
+      if(current===3) state.style = document.querySelector('input[name="style"]:checked')?.value || state.style;
+      if(current===4) state.fit = document.querySelector('input[name="fit"]:checked')?.value || state.fit;
+      if(current===5){ state.height = parseFloat($('#height').value); state.inseam = parseFloat($('#inseam').value); }
+    };
+
+    // parse size like "52–54cm" or "60cm +" into [low, high]
+    function parseSizeRange(sizeStr){
+      const clean = sizeStr.replace(/\s+/g,'');
+      if(clean.includes('–')){
+        const [a,b] = clean.replace('cm','').split('–').map(n=>parseFloat(n));
+        return [a,b];
+      }
+      if(clean.includes('+')){
+        const a = parseFloat(clean);
+        return [a, Infinity];
+      }
+      const a = parseFloat(clean);
+      return [a,a];
     }
 
-    h('#btn').addEventListener('click',()=>{
-      const height=parseFloat(h('#height').value);
-      const inseam=parseFloat(h('#inseam').value);
-      const result=findSize(height, inseam);
-      const box=h('#res');
-      if(result){h('#size').textContent=result.size;h('#note').textContent=result.note;box.hidden=false;}
-      else{h('#size').textContent='';h('#note').textContent='No matching data found';box.hidden=false;}
+    function findBaseRange(height, inseam){
+      let hit = TABLE.find(r => height >= r.minHeight && height <= r.maxHeight && inseam >= r.minInseam && inseam <= r.maxInseam);
+      if(!hit){
+        // nearest fallback
+        let best=null, diff=Infinity;
+        for(const r of TABLE){
+          const d = Math.abs(height - (r.minHeight+r.maxHeight)/2) + Math.abs(inseam - (r.minInseam+r.maxInseam)/2);
+          if(d<diff){ diff=d; best=r; }
+        }
+        hit = best;
+      }
+      return hit ? { label: hit.size, range: parseSizeRange(hit.size) } : null;
+    }
+
+    function applyStyleBias(base, style){
+      // If style is racing -> choose smaller bound; comfort -> choose larger
+      if(!base) return null;
+      const [low, high] = base.range;
+      if(style === 'race'){
+        // prefer smaller; if open-ended "+", choose numeric bound
+        const val = (low===Infinity? high : low);
+        return `${val}cm`;
+      }
+      // comfort / default: choose larger end
+      if(high===Infinity) return `${low}cm +`;
+      return `${high}cm`;
+    }
+
+    function compute(){
+      const base = findBaseRange(state.height, state.inseam);
+      if(!base) return null;
+      const picked = applyStyleBias(base, state.style);
+      return {
+        picked,
+        baseLabel: base.label
+      };
+    }
+
+    // wiring
+    $('#start').addEventListener('click', ()=> showStep(1));
+    document.querySelectorAll('[data-next]').forEach(btn=>btn.addEventListener('click', ()=>{
+      if(!needAnswer()) return alert('Please select an option to continue.');
+      readAnswers();
+      showStep(current+1);
+    }));
+    document.querySelectorAll('[data-prev]').forEach(btn=>btn.addEventListener('click', ()=>{
+      showStep(Math.max(0,current-1));
+    }));
+
+    $('#calc').addEventListener('click', ()=>{
+      if(!needAnswer()) return alert('Please enter height and inseam.');
+      readAnswers();
+      const res = compute();
+      if(!res){ alert('No matching data found. Please review your inputs.'); return; }
+      // populate result view
+      $('#size').textContent = res.picked;
+      $('#note').textContent = `Base range for your measurements: ${res.baseLabel}. Adjusted by style: ${state.style==='race'?'smaller (racing)':'larger (comfort)'}.`;
+      $('#recap').textContent = `Sex: ${state.sex || '-'} · Riding age: ${state.years || '-'} · Fitting done: ${state.fit || '-'} · Height: ${state.height} cm · Inseam: ${state.inseam} cm`;
+      showStep(6);
+    });
+
+    $('#restart').addEventListener('click', ()=>{
+      // reset minimal state and go back to intro
+      for(const k of Object.keys(state)) state[k]=null;
+      document.querySelectorAll('input[type="radio"]').forEach(el=>el.checked=false);
+      $('#height').value='';
+      $('#inseam').value='';
+      showStep(0);
     });
   </script>
 </body>
