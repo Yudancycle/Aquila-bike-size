@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Find your Aquila bike</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#ffffff;color:#1a1a1a;margin:0;padding:30px;line-height:1.5;text-align:center}
+    img.logo{max-width:400px;width:80%;height:auto;margin-bottom:20px}
+    h1{font-size:24px;margin-bottom:20px}
+    .card{background:#f4f6f8;border-radius:16px;padding:20px;max-width:800px;margin:20px auto;box-shadow:0 0 10px rgba(0,0,0,.1);text-align:left}
+    label{display:block;margin-top:10px;font-size:14px;color:#555}
+    input,button{border-radius:10px;border:1px solid #ccc;background:#fff;color:#000;padding:10px;width:100%}
+    button{margin-top:14px;background:#007bff;color:#fff;border:none;font-weight:700;cursor:pointer}
+    button:hover{background:#0056b3}
+    .result{margin-top:20px;padding:10px;border-radius:10px;background:#fff;border:1px solid #ccc}
+    @media (max-width:600px){img.logo{max-width:240px;width:90%}}
+  </style>
+</head>
+<body>
+  <img src="Aquila.png" alt="AQUILA Logo" class="logo" />
+  <h1>Find your Aquila bike</h1>
+  <div class="card">
+    <label>Height (cm)</label>
+    <input id="height" type="number" placeholder="175" />
+    <label>Inseam (cm)</label>
+    <input id="inseam" type="number" placeholder="82" />
+    <button id="btn">Calculate</button>
+    <div class="result" id="res" hidden>
+      <div id="size"></div>
+      <div id="note" style="font-size:13px;color:#555;margin-top:6px"></div>
+    </div>
+  </div>
+
+  <script>
+    const TABLE = [
+      { minHeight: 0, maxHeight: 156, minInseam: 70, maxInseam: 72, size: '45–48cm' },
+      { minHeight: 164, maxHeight: 164, minInseam: 73, maxInseam: 75, size: '48–50cm' },
+      { minHeight: 164, maxHeight: 172, minInseam: 76, maxInseam: 78, size: '50–52cm' },
+      { minHeight: 172, maxHeight: 175, minInseam: 79, maxInseam: 80, size: '52–54cm' },
+      { minHeight: 178, maxHeight: 182, minInseam: 81, maxInseam: 83, size: '54–56cm' },
+      { minHeight: 180, maxHeight: 188, minInseam: 84, maxInseam: 87, size: '56–58cm' },
+      { minHeight: 188, maxHeight: 195, minInseam: 88, maxInseam: 90, size: '58–60cm' },
+      { minHeight: 195, maxHeight: 210, minInseam: 91, maxInseam: 93, size: '60cm +' }
+    ];
+
+    const h = (s)=>document.querySelector(s);
+
+    function findSize(height, inseam){
+      const match = TABLE.find(r => height >= r.minHeight && height <= r.maxHeight && inseam >= r.minInseam && inseam <= r.maxInseam);
+      if(match) return {size: match.size, note:`Height ${height} cm, inseam ${inseam} cm → Recommended frame size: ${match.size}`};
+      let closest=null, diff=Infinity;
+      for(const r of TABLE){
+        const d = Math.abs(height - (r.minHeight + r.maxHeight)/2) + Math.abs(inseam - (r.minInseam + r.maxInseam)/2);
+        if(d < diff){ diff = d; closest = r; }
+      }
+      return closest ? {size: closest.size, note:`No exact match, closest range: (${closest.minHeight}-${closest.maxHeight} cm / ${closest.minInseam}-${closest.maxInseam} cm)`}:null;
+    }
+
+    h('#btn').addEventListener('click',()=>{
+      const height=parseFloat(h('#height').value);
+      const inseam=parseFloat(h('#inseam').value);
+      const result=findSize(height, inseam);
+      const box=h('#res');
+      if(result){h('#size').textContent=result.size;h('#note').textContent=result.note;box.hidden=false;}
+      else{h('#size').textContent='';h('#note').textContent='No matching data found';box.hidden=false;}
+    });
+  </script>
+</body>
+</html>
