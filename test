@@ -129,6 +129,7 @@
         <h3>Your Aquila recommendation</h3>
         <div class="result">
           <div id="size" style="font-size:20px;font-weight:800"></div>
+          <div id="tt" class="summary" style="margin-top:6px"></div>
           <div id="note" class="note" style="margin-top:6px"></div>
           <div id="recap" class="summary" style="margin-top:10px"></div>
         </div>
@@ -266,6 +267,19 @@
       return `${high}cm`;
     }
 
+    // Map picked road size to one-step smaller TT size based on discrete size steps
+    const SIZE_STEPS = [44, 46, 49, 52, 54, 56, 58, 60];
+    function ttFromRoad(picked){
+      if(!picked) return null;
+      const clean = picked.replace(/\s+/g,'').replace('cm',''); // "60+" -> "60+"
+      const num = parseInt(clean, 10); // "60+" → 60
+      if(Number.isNaN(num)) return null;
+      const idx = SIZE_STEPS.indexOf(num);
+      if(idx === -1) return null;
+      const ttIdx = Math.max(0, idx - 1);
+      return `${SIZE_STEPS[ttIdx]}cm`;
+    }
+
     function compute(){
       const base = findBaseRange(state.height, state.inseam);
       if(!base) return null;
@@ -294,6 +308,8 @@
       if(!res){ alert('No matching data found. Please review your inputs.'); return; }
       // populate result view
       $('#size').textContent = res.picked;
+      const tt = ttFromRoad(res.picked);
+      $('#tt').textContent = tt ? `TT / Tri bike recommendation: ${tt} (one size down from road)` : 'TT / Tri bike recommendation: —';
       $('#note').textContent = `Base range for your measurements: ${res.baseLabel}. Adjusted by style: ${state.style==='race'?'smaller (racing)':'larger (comfort)'}.`;
       $('#recap').textContent = `Sex: ${state.sex || '-'} · Riding age: ${state.years || '-'} · Fitting done: ${state.fit || '-'} · Height: ${state.height} cm · Inseam: ${state.inseam} cm`;
       showStep(6);
